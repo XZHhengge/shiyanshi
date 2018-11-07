@@ -1,0 +1,23 @@
+<html>
+<head>
+<title>打开word文档</title>
+<meta http-equir="content-type"
+
+content="text/html";charset="gb2312">
+<script language="Javascript">
+function doword(doc)                    //doc为你的当前路径下的文件名
+{
+
+var url=unescape(window.location.href).replace( "file:///","");
+url =url.substring(0,url.lastIndexOf("/")+1).replace("/","//");
+url=url+doc;
+var WordApp=new ActiveXObject("Word.Application");
+WordApp.Application.Visible=true;
+var Doc=WordApp.Documents.Add(url,true);
+}
+</script>
+</head>
+<body>
+<button onClick="doword('/media/files/实验室管理制度.docx')">打开Word文档</button>
+</body>
+</html>

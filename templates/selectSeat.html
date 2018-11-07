@@ -1,0 +1,87 @@
+<!doctype html>
+{% load staticfiles %}
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title></title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/seat/jquery.seat-charts.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/seat/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/seat/bootrapkkkkkkkkkk.css' %}">
+    <script src="{% static 'js/seat/jquery-1.11.0.min.js' %}"></script>
+    <script src="{% static 'js/seat/jquery.seat-charts.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="http://hovertree.com/texiao/js/20/css/demo.css">
+<style>
+* {
+padding: 0;
+margin: 0;
+}
+
+.content {
+margin: 50px auto 0;
+width: 300px;
+min-height: 500px;
+}
+
+.form-group {
+width: 100%;
+float: left;
+margin: 5px 0;
+}
+
+label {
+margin-bottom: 10px;
+float: left;
+}
+
+.field-input, select {
+width: calc(100% - 20px);
+float: left;
+padding: 10px;
+font-family: inherit;
+}
+</style>
+
+<!--必要样式-->
+<link rel="stylesheet" href="http://hovertree.com/texiao/js/20/css/pickout.css">
+</head>
+
+<h1>21小时</h1>
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="form-group">
+                <label for="state">时间选择</label>
+                <select name="time" id="time" class="state pickout" placeholder="选择一个时间段">
+                    <option value="12">１－２节 8:00-9:40</option>
+                    <option value="34">３－４节 10:00-11:40</option>
+                    <option value="56">５－６节 14:30-16:10</option>
+                    <option value="78">７－８节 16:20-17:50</option>
+                    <option value="90">９－１０节 19:40-21:20</option>
+                </select>
+            </div>
+            <a href="{% url 'users:getSeat' %}">
+                <button type="button" class="content Time">提交</button>
+                <input type="button" onclick="seatTime()" value="提交"/>
+                <button onclick="seatTime()">提交</button>
+            </a>
+        </div>
+    </div>
+<script>
+    {#$('.Time').on('click',     #}
+        function seatTime(){
+        var time=$("#time").val()
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "",
+                data:{'as':saa},
+                async: true,
+            })
+
+    }
+    </script>
+
+</body>
+</html>

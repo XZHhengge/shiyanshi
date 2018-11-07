@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+{% load staticfiles %}
+<head>
+<title></title>
+{#<meta http-equiv="refresh" content="3">#}
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/seat/jquery.seat-charts.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/seat/style.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/seat/bokstrap.css' %}">
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="wrapper">
+  <div class="container">
+    <div id="seat-map">
+      <div class="front-indicator">教室</div>
+    </div>
+    <div class="booking-details">
+      <h3>已选中的座位 (<span id="counter">0</span>):</h3>
+      <ul id="selected-seats">
+      </ul>
+      <p>总价: <b>$<span id="total">0</span></b></p>
+      <p><button class="checkout-button">预约</button></p>
+      <div id="legend"></div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">座位预约</h4>
+            </div>
+            <div class="modal-body" id="contents"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default cba" data-dismiss="modal" id="">关闭</button>
+                <button type="button" class="btn btn-primary abcde" id="updatee" data-dismiss="modal">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<script src="{% static 'js/seat/jquery-1.11.0.min.js' %}"></script>
+<script src="{% static 'js/seat/jquery.seat-charts.min.js' %}"></script>
+<script>
+
+			var firstSeatLabel = 1;
+            numb = '0';
+            condition = "";
+			$(document).ready(function() {
+				var $cart = $('#selected-seats'),
+					$counter = $('#counter'),
+					$total = $('#total'),
+					sc = $('#seat-map').seatCharts({
+					map: [
+						'eeeee',
+						'eeeee',
+						'eeeee',
+						'eeeee',
+						'eeeee',
+						'eeeee',
+						'eeeee',
+						'eeeee',
+						'eeeee',
+						'eeeee',
+					],
+					seats: {
+						f: {
+							price   : 100,
+							classes : 'first-class', //your custom CSS class
+							category: '实验中'
+						},
+						e: {
+							price   : 40,
+							classes : 'economy-class', //your custom CSS class
+							category: '未预约'
+						}
+					},
+					naming : {
+						top : false,
+						getLabel : function (character, row, column) {
+							return firstSeatLabel++;
+						},
+					},
+					legend : {
+						node : $('#legend'),
+					    items : [
+							[ 'f', 'available',   '已预约' ],
+							[ 'e', 'available',   '未预约'],
+							[ 'f', 'unavailable', '实验中']
+					    ]
+					},
+					click: function () {
+						if (this.status() == 'available') {
+
+                            var where = document.getElementById('contents');
+                            where.innerHTML = '确定预约第' + this.settings.label + '号位吗？';
+							$('<li>'+this.data().category+this.settings.label+'号座位'+'：<br/>价格：<b>$'+this.data().price+'</b> <a href="#" class="cancel-cart-item">[删除]</a></li>')
+								.attr('id','cart-item-'+this.settings.id)
+								.data('seatId', this.settings.id)
+								.appendTo($cart);
+                            {# 座位数量  座位价格#}
+                            numb = this.settings.id;
+							$counter.text(sc.find('selected').length+1);
+							$total.text(recalculateTotal(sc)+this.data().price);
+
+							condition = "selected"
+							return 'selected';
+						} else if (this.status() == 'selected') {
+						    var where = document.getElementById('contents');
+                            where.innerHTML = '确定预约第' + this.settings.label + '号位吗？';
+							//update the counter
+							$counter.text(sc.find('selected').length-1);
+							//and total
+							$total.text(recalculateTotal(sc)-this.data().price);
+							//remove the item from our cart
+							$('#cart-item-'+this.settings.id).remove();
+							//seat has been vacated
+							return 'available';
+						} else if (this.status() == 'unavailable') {
+						    var where = document.getElementById('contents');
+                            where.innerHTML = '暂时无座';
+							//seat has been already bookede
+							return 'unavailable';
+						} else if (this.status() == 'availablee') {
+						    var where = document.getElementById('contents');
+                            where.innerHTML = '暂时无座';
+							//seat has been already booked
+							return 'unavailable';
+						}
+						else {
+							return this.style();
+						}
+					}
+				});
+
+				//this will handle "[cancel]" link clicks
+				$('#selected-seats').on('click', '.cancel-cart-item', function () {
+					//let's just trigger Click event on the appropriate seat, so we don't have to repeat the logic here
+					sc.get($(this).parents('li:first').data('seatId')).click();
+				});
+				//let's pretend some seats have already been booked
+                {% for b in b %}
+                sc.get(['{{ b }}']).status('availablee');
+                {% endfor %}
+                {% for a in a %}
+				sc.get(['{{ a }}']).status('unavailable');
+                {% endfor %}
+
+		});
+		function recalculateTotal(sc) {
+			var total = 0;
+			//basically find every selected seat and sum its price
+			sc.find('selected').each(function () {
+				total += this.data().price;
+			});
+			return total;
+		}
+		function trian(label) {
+            var a = label.split('_')[0];
+            var b = label.split('_')[1];
+            {#a = int(a)#}
+            {#b = int(b)#}
+            {#var c = a*5-(5-b)#}
+			return a;
+		}
+		</script>
+<script>
+    $('.abcde').on('click', function(){
+
+          $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url:"{% url "seat:seat" %}",
+                    data:{'label':numb, },
+                    async: true,
+                    beforeSend:function(xhr, settings){
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function(data) {
+                        if(data.status == 'fail'){
+                            setTimeout(alert(data.msg), 5000);
+                        }else if(data.status == 'success'){
+                            location.reload();
+                        }
+                    },
+                });
+
+       });
+
+</script>
+<div align="center" style="clear:both;font-size:12px;color:#666;font:normal 14px/24px 'MicroSoft YaHei';">
+
+</div>
+</body>
+</html>

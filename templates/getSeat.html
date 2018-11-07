@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+    <title></title>
+    {#<meta http-equiv="refresh" content="3">#}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/seat/jquery.seat-charts.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/seat/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bb.css' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
+    <script src="{% static 'js/seat/jquery1.11.1/jquery-1.11.1.min.js' %}"></script>
+    <script src="{% static 'js/seat/bootstrap.min.3.3.0.js' %}"></script>
+
+</head>
+<body>
+
+<section class="headerwrap ">
+    <header>
+        <div class=" header">
+            <div class="top">
+                {% if request.user.is_authenticated %}
+                    <div class="wp">
+                        <div class="fl"><p>服务电话：<b>6666666</b></p></div>
+                        <div class="personal">
+                            <dl class="user fr">
+                                <dd>{{ user.username }}<img class="down fr" src="{% static 'images/top_down.png' %}"/></dd>
+                                <dt><img width="20" height="20" src="{{ MEDIA_URL }}{{ user.image }}"/></dt>
+                            </dl>
+                        </div>
+                    </div>
+                    </div>
+                {% endif %}
+
+            <div class="middle">
+                <div class="wp">
+                    <a href="{% url 'index' %}"><img class="fl" src="{% static 'images/zhineng2.PNG' %}"/></a>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+</section>
+<div class="wrapper">
+    <div class="container">
+        <div class="content">
+            <div class="form-group">
+                <label for="state">星期选择</label>
+                <select name="datess" id="datess" class="state pickout2">
+                    <option value="-1">--选择</option>
+                    <option value="1">星期一</option>
+                    <option value="2">星期二</option>
+                    <option value="3">星期三</option>
+                    <option value="4">星期四</option>
+                    <option value="5">星期五</option>
+                    <option value="6">星期六</option>
+                    <option value="7">星期天</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="state">节课选择</label>
+                <select name="time" id="time" class="state pickout1">
+                    <option value="-1">--选择</option>
+                    <option value="12">１－２节 8:00-9:40</option>
+                    <option value="34">３－４节 10:00-11:40</option>
+                    <option value="56">５－６节 14:30-16:10</option>
+                    <option value="78">７－８节 16:20-17:50</option>
+                    <option value="90">９－１０节 19:40-21:20</option>
+                </select>
+            </div>
+        </div>
+        <div id="seat-map">
+            <div class="front-indicator">座位选择</div>
+        </div>
+        <div class="booking-details">
+            <div id="legend"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">座位预约</h4>
+            </div>
+            <div class="modal-body" id="contents">
+                {#                <p id = 'title'></p>#}
+                <form role="form">
+                    <div class="form-group">
+                        {#                        <h1>确定预约</h1>#}
+                        {#                        <select class="form-control" id = 'seatState' name="seatState">#}
+                        {#                            <option value = 'active'>1-2节</option>#}
+                        {#                            <option value = 'broken'>3-4节</option>#}
+                        {#                            <option value = 'aisle'>5-6节</option>#}
+                        {#                            <option value = 'aisle'>7-8节</option>#}
+                        {#                        </select>#}
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default cba" data-dismiss="modal" id="">关闭</button>
+                <button type="button" class="btn btn-primary abcde" id="updatee" data-dismiss="modal">提交更改</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<script src="{% static 'js/seat/jquery-1.11.0.min.js' %}"></script>
+<script src="{% static 'js/seat/jquery.seat-charts.min.js' %}"></script>
+<script>
+    var obj = document.getElementById("datess");
+    obj.options[{{ c }}].selected = true;
+    var obj1 = document.getElementById("time");
+    obj1.options[{{ d }}].selected = true;
+
+    {##}
+    {#var obj = document.getElementById("datess");#}
+    {#var index = obj.selectedIndex;#}
+    {#var obj1 = document.getElementById("time");#}
+    {#var index1 = obj1.selectedIndex;#}
+    var firstSeatLabel = 1;
+    var dateNum = "";
+    options = "";
+    numb = '0';
+    condition = "";
+    number = "";
+    $(document).ready(function () {
+        var $cart = $('#selected-seats'),
+            $counter = $('#counter'),
+            $total = $('#total'),
+            sc = $('#seat-map').seatCharts({
+                map: [
+                    'eee',
+                    'eee',
+                    'eee',
+                    'eee',
+                    'eee',
+                    'eee',
+                    'eee',
+                    'eee',
+                    'eee',
+
+                ],
+                seats: {
+                    f: {
+                        classes: 'first-class', //your custom CSS class
+                        category: '实验中'
+                    },
+                    e: {
+                        classes: 'economy-class', //your custom CSS class
+                        category: '未预约'
+                    }
+                },
+                naming: {
+                    top: false,
+                    getLabel: function (character, row, column) {
+                        return firstSeatLabel++;
+                    },
+                },
+                legend: {
+                    node: $('#legend'),
+                    items: [
+                        ['f', 'unavailable', '不可选'],
+                        ['e', 'available', '可以选'],
+                    ]
+                },
+                click: function () {
+                    if (this.status() == 'available') {
+                        var where = document.getElementById('contents');
+                        where.innerHTML = '确定预约第' + this.settings.label + '号位吗？';
+                        $('<li>' + this.data().category + this.settings.label)
+                            .attr('id', 'cart-item-' + this.settings.id)
+                            .data('seatId', this.settings.id)
+                            .appendTo($cart);
+
+                        //点击之后返回已选状态
+                        numb = this.settings.id;
+                        {#$counter.text(sc.find('selected').length+1);#}
+                        condition = "selected"
+                        return 'selected';
+                    } else if (this.status() == 'selected') {
+                        var where = document.getElementById('contents');
+                        where.innerHTML = '确定预约第' + this.settings.label + '号位吗？';
+                        //update the counter
+                        {#$counter.text(sc.find('selected').length-1);#}
+
+                        //remove the item from our cart
+                        {#$('#cart-item-' + this.settings.id).remove();#}
+                        //seat has been vacated
+                        return 'available';
+                    } else if (this.status() == 'unavailable') {
+                        var where = document.getElementById('contents');
+                        where.innerHTML = '暂时无座';
+                        //seat has been already bookede
+                        return 'unavailable';
+                    }
+                    else {
+                        return this.style();
+                    }
+                }
+            });
+        {% for b in b2 %}
+            sc.get(['{{ b }}']).status('unavailable');
+        {% endfor %}
+        {#sc.get(['{{ f }}']).status('unavailable');#}
+        //this will handle "[cancel]" link clicks
+        $('#selected-seats').on('click', '.cancel-cart-item', function () {
+            //let's just trigger Click event on the appropriate seat, so we don't have to repeat the logic here
+            sc.get($(this).parents('li:first').data('seatId')).click();
+        });
+        //let's pretend some seats have already been booked
+
+
+        $("#time").on("change", function b() {
+            number = $("option:selected", this).val();
+            {#number = parseInt(number);#}
+            {#dateNum = parseInt(dateNum);#}
+            options = $("#datess option:selected").val();
+            {#dateNum = document.getElementById("date111");#}
+            var obj = document.getElementById("datess");
+            var index = obj.selectedIndex;
+            var obj1 = document.getElementById("time");
+            var index1 = obj1.selectedIndex;
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "{% url "users:choicetime" %}",
+                data: {
+                    'time': number,
+                    'date': options,
+                    'index': index,
+                    'index1': index1,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                async: true,
+                success: function (data) {
+                    if (data.status == 'fail') {
+                        setTimeout(alert(data.msg), 5000);
+                    } else if (data.status == 'success') {
+
+                        window.location.href = 'http://192.168.0.100:8001/users/choice?date=' + options + '&time=' + number + '&index=' + index + '&index1=' + index1 + '';
+
+                    }
+                },
+
+            });
+
+        });
+        //点击事件  button id为abcd
+        $('.abcde').on('click', function () {
+            number = $("#time option:selected").val();
+            options = $("#datess option:selected").val();
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "{% url "users:getSeat" %}",
+                data: {'label': numb, 'date': options, 'time': number},
+                async: true,
+                beforeSend: function (xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function (data) {
+                    if (data.status == 'fail') {
+                        setTimeout(alert(data.msg), 5000);
+                    } else if (data.status == 'success') {
+                        location.reload();
+                    }
+                },
+            });
+        });
+
+
+    });
+
+    //先选择星期
+
+
+</script>
+<div align="center" style="clear:both;font-size:12px;color:#666;font:normal 14px/24px 'MicroSoft YaHei';">
+
+</div>
+</body>
+</html>

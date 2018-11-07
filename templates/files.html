@@ -1,0 +1,45 @@
+{% extends 'base1.html' %}
+{% load staticfiles %}
+{% block titile %}
+首页 | mtianyan慕课小站
+{% endblock %}
+
+<script>
+function openmydoc(path)
+
+{
+    alert("Fffffffffffffffffffff")
+var doc=new ActiveXObject("Word.Application");
+doc.visible=true;
+doc.Documents.Open(path);
+}
+</script>
+
+{% block content %}
+    <div id="mainArea" class="wxwrap">
+    <div class="wxmain">
+        <div class="wxTitle">
+            <h2 class="title">实验报告</h2>
+        </div>
+{#        <div id="datapupart"></div>#}
+        <div class="wxInfo">
+            <div class="wxBaseinfo">
+                <p><label id="catalog_ABSTRACT">摘要：</label>
+                    <span id="ChDivSummary" name="ChDivSummary">{{ result|truncatechars:500  }}</span>
+                    <br></p>
+                <div class="dllink" id="DownLoadParts">
+                    <a target="_blank" class="icon icon-dlcrsp xml" href="/media/files/实验室管理制度.docx" >
+                    HTML阅读
+                </a>
+                    <a onclick="" target="_blank" class="icon icon-dlpdf" id="pdfDown" name="pdfDown"
+                       href="{% static 'pdfjs/web/viewer.html' %}">PDF下载</a>
+{#                        <a onclick="" target="_blank" class="icon icon-dlpdf" id="pdfDown" name="pdfDown"#}
+{#                       href="{{ MEDIA_URL}}{{ request.user.pdf_url }}" download="w3logo">#}
+{#                    PDF下载#}
+{#                </a>#}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
